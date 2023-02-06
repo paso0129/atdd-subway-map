@@ -1,16 +1,9 @@
 package subway;
 
 
-import static io.restassured.RestAssured.given;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.annotation.DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD;
-import static subway.SubwayFixture.LINE_SHIN_BUN_DANG_REQUEST;
-import static subway.SubwayFixture.LINE_TWO_REQUEST;
-
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
-import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,6 +11,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.jdbc.Sql;
+
+import java.util.List;
+
+import static io.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.annotation.DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD;
+import static subway.SubwayFixture.LINE_SHIN_BUN_DANG_REQUEST;
+import static subway.SubwayFixture.LINE_TWO_REQUEST;
 
 
 @DisplayName("지하철 노선 관련 기능")
@@ -35,34 +36,34 @@ public class LineAcceptanceTest {
     void 지하철_노선_생성() {
 
         //when
-        ExtractableResponse<Response> response = createSubwayLine(LINE_SHIN_BUN_DANG_REQUEST);
+        createSubwayLine(LINE_SHIN_BUN_DANG_REQUEST);
 
         //then
-        assertThat(response.jsonPath().getString("name")).contains("신분당선");
-        List<String> lineNames = getSubwayLines().jsonPath().getList("name", String.class);
+        List<String> lineNames = getSubwayLines();
         assertThat(lineNames).containsAnyOf(LINE_SHIN_BUN_DANG_REQUEST.getName());
     }
 
 
-    private ExtractableResponse<Response> createSubwayLine(LineRequest lineRequest) {
+    private Long createSubwayLine(LineRequest lineRequest) {
         return given().log().all()
-            .body(lineRequest)
-            .contentType(MediaType.APPLICATION_JSON_VALUE)
-            .when()
-            .post("/lines")
-            .then()
-            .log().all()
-            .statusCode(HttpStatus.CREATED.value())
-            .extract();
+                .body(lineRequest)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when()
+                .post("/lines")
+                .then()
+                .log().all()
+                .statusCode(HttpStatus.CREATED.value())
+                .extract().jsonPath().getLong("id");
     }
 
-    private ExtractableResponse<Response> getSubwayLines() {
+    private List<String> getSubwayLines() {
         return given()
-            .accept(MediaType.APPLICATION_JSON_VALUE)
-            .when().get("/lines")
-            .then()
-            .statusCode(HttpStatus.OK.value())
-            .extract();
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .when().get("/lines")
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .jsonPath().getList("name", String.class);
     }
 
     /**
@@ -79,12 +80,10 @@ public class LineAcceptanceTest {
         createSubwayLine(LINE_TWO_REQUEST);
 
         // when
-        ExtractableResponse<Response> response = getSubwayLines();
+        List<String> lineNames = getSubwayLines();
 
         // then
-        List<String> lineNames = response.jsonPath().getList("name", String.class);
-        assertThat(lineNames).containsAnyOf(LINE_SHIN_BUN_DANG_REQUEST.getName(),
-            LINE_TWO_REQUEST.getName());
+        assertThat(lineNames).containsAnyOf(LINE_SHIN_BUN_DANG_REQUEST.getName(), LINE_TWO_REQUEST.getName());
     }
 
     private ExtractableResponse<Response> getSubwayLine(Long id) {
@@ -108,11 +107,10 @@ public class LineAcceptanceTest {
     @Test
     void 지하철노선_조회() {
         //given
-        ExtractableResponse<Response> createdResponse = createSubwayLine(
-            LINE_SHIN_BUN_DANG_REQUEST);
+        Long id = createSubwayLine(
+                LINE_SHIN_BUN_DANG_REQUEST);
 
         //when
-        Long id = createdResponse.jsonPath().getLong("id");
         ExtractableResponse<Response> getResponse = getSubwayLine(id);
 
         //then
@@ -144,10 +142,8 @@ public class LineAcceptanceTest {
     @Test
     void 지하철노선_수정() {
         //given
-        ExtractableResponse<Response> createdResponse = createSubwayLine(
-            LINE_SHIN_BUN_DANG_REQUEST);
+        Long id = createSubwayLine(LINE_SHIN_BUN_DANG_REQUEST);
         //when
-        Long id = createdResponse.jsonPath().getLong("id");
         updateSubwayLine(id);
 
         //then
@@ -176,13 +172,11 @@ public class LineAcceptanceTest {
     @Test
     void 지하철노선_삭제() {
         //given
-        ExtractableResponse<Response> createdResponse = createSubwayLine(
-            LINE_SHIN_BUN_DANG_REQUEST);
+        Long id = createSubwayLine(LINE_SHIN_BUN_DANG_REQUEST);
         //when
-        Long id = createdResponse.jsonPath().getLong("id");
         deleteSubwayLine(id);
         //then
-        List<String> subwayNameList = getSubwayLines().jsonPath().getList("name", String.class);
+        List<String> subwayNameList = getSubwayLines();
         assertThat(subwayNameList).doesNotContain(LINE_SHIN_BUN_DANG_REQUEST.getName());
     }
 
