@@ -1,15 +1,13 @@
-package subway;
+package subway.line;
 
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import subway.section.Section;
+import subway.station.Station;
+
+import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Getter
@@ -32,9 +30,12 @@ public class Line {
     @Column(nullable = false)
     private Integer distance;
 
+    @OneToMany(fetch = FetchType.LAZY)
+    private List<Section> sectionList;
+
 
     public Line(String name, String color, Station upStationId,
-        Station downStationId, Integer distance) {
+                Station downStationId, Integer distance) {
         this.name = name;
         this.color = color;
         this.upStation = upStationId;
@@ -46,5 +47,10 @@ public class Line {
         this.id = id;
         this.name = lineRequest.getName();
         this.color = lineRequest.getColor();
+    }
+
+    public void createSection(Station upStation, Station downStation, Integer distance) {
+        Section section = Section.createSection(this, upStation, downStation, distance);
+        this.sectionList.add(section);
     }
 }

@@ -1,10 +1,12 @@
-package subway;
+package subway.line;
 
+
+import lombok.Getter;
+import subway.station.StationResponse;
 
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import lombok.Getter;
 
 @Getter
 public class LineResponse {

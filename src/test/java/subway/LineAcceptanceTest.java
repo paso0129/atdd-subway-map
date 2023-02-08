@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.jdbc.Sql;
+import subway.line.LineRequest;
 
 import java.util.List;
 

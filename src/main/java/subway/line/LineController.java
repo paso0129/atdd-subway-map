@@ -1,16 +1,12 @@
-package subway;
+package subway.line;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import subway.section.SectionRequest;
 
 import java.net.URI;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
@@ -38,7 +34,7 @@ public class LineController {
 
     @PutMapping("/lines/{id}")
     public void modifySubwayLine(@PathVariable Long id,
-        @RequestBody LineRequest lineRequest) {
+                                 @RequestBody LineRequest lineRequest) {
         lineService.updateSubwayLine(id, lineRequest);
     }
 
@@ -46,6 +42,13 @@ public class LineController {
     public ResponseEntity<Void> deleteSubwayLine(@PathVariable Long id) {
         lineService.deleteSubwayLine(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/lines/{id}/sections")
+    public ResponseEntity<Void> createSection(@PathVariable Long id,
+                                              @RequestBody SectionRequest sectionRequest) {
+        lineService.createSection(id, sectionRequest);
+        return ResponseEntity.ok().build();
     }
 
 
